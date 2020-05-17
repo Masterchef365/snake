@@ -18,6 +18,7 @@ struct SnakeApp {
 #[derive(Debug)]
 pub enum Message {
     Tick,
+    Event(iced_native::Event),
 }
 
 impl Application for SnakeApp {
@@ -48,13 +49,31 @@ impl Application for SnakeApp {
                         StepResult::Died => self.paused = true,
                     }
                 }
-            },
+            }
+            Message::Event(iced_native::Event::Keyboard(
+                iced_native::keyboard::Event::KeyPressed {
+                    key_code, ..
+                },
+            )) => {
+                use iced_native::keyboard::KeyCode;
+                match key_code {
+                    KeyCode::Up => self.game.set_direction(Direction::Up),
+                    KeyCode::Down => self.game.set_direction(Direction::Down),
+                    KeyCode::Right => self.game.set_direction(Direction::Right),
+                    KeyCode::Left => self.game.set_direction(Direction::Left),
+                    _ => (),
+                }
+            }
+            _ => (),
         };
         Command::none()
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        time::every(std::time::Duration::from_millis(1000)).map(|_| Message::Tick)
+        Subscription::batch(vec![
+            iced_native::subscription::events().map(Message::Event),
+            time::every(std::time::Duration::from_millis(500)).map(|_| Message::Tick),
+        ])
     }
 
     fn view(&mut self) -> Element<Self::Message> {

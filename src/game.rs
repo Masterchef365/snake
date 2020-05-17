@@ -72,7 +72,7 @@ impl Game {
 
         let (food_x, food_y) = self.food;
 
-        if nx == food_x || ny == food_y {
+        if nx == food_x && ny == food_y {
             self.food = random_position(self.width, self.width);
         } else {
             self.snake.pop_front();

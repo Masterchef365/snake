@@ -11,6 +11,10 @@ impl Board {
         }
     }
 
+    pub fn height(&self) -> usize {
+        self.tiles.len() / self.width
+    }
+
     pub fn get(&self, x: usize, y: usize) -> &Tile {
         &self.tiles[y * self.width + x]
     }

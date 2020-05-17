@@ -17,15 +17,24 @@ impl SnakeWidget {
             margin,
         }
     }
+
+    pub fn set_board(&mut self, board: Board) {
+        self.board = board;
+    }
 }
 
 impl Program<Message> for SnakeWidget {
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
+        /*
         frame.fill(
             &Path::rectangle(Point::new(0.0, 0.0), bounds.size()),
             Fill::Color(Color::BLACK),
         );
+        */
+
+        let total_height = self.board.height() as f32 * (self.tile_size + self.margin);
+
         let mut y = 0.0;
         for row in self.board.rows() {
             let mut x = 0.0;
@@ -36,7 +45,10 @@ impl Program<Message> for SnakeWidget {
                     Tile::Food => Color::from_rgb8(0xff, 0x00, 0x00),
                 };
                 frame.fill(
-                    &Path::rectangle(Point::new(x, y), Size::new(self.tile_size, self.tile_size)),
+                    &Path::rectangle(
+                        Point::new(x, total_height - y),
+                        Size::new(self.tile_size, self.tile_size),
+                    ),
                     Fill::Color(color),
                 );
                 x += self.tile_size + self.margin;
