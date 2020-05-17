@@ -119,24 +119,28 @@ impl Layer {
 pub struct NeuralNet {
     hidden_0: Layer,
     hidden_1: Layer,
+    hidden_2: Layer,
 }
 
 impl NeuralNet {
     pub fn new() -> Self {
         Self {
             hidden_0: Layer::new(24, 18),
-            hidden_1: Layer::new(18, 4),
+            hidden_1: Layer::new(18, 18),
+            hidden_2: Layer::new(18, 4),
         }
     }
 
     pub fn infer(&self, input_layer: &[f32]) -> Box<[f32]> {
-        let intermediate = self.hidden_0.infer(input_layer);
-        self.hidden_1.infer(&intermediate)
+        let l0 = self.hidden_0.infer(input_layer);
+        let l1 = self.hidden_1.infer(&l0);
+        self.hidden_2.infer(&l1)
     }
 
     pub fn fuzz(&mut self, learning_rate: f32) {
         self.hidden_0.fuzz(learning_rate);
         self.hidden_1.fuzz(learning_rate);
+        self.hidden_2.fuzz(learning_rate);
     }
 
     pub fn play(&self, game: &mut Game) {
