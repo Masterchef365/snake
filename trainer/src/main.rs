@@ -52,7 +52,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let mut rng = rand::thread_rng();
-    for iter in 1..epochs {
+    for iter in 1..=epochs {
         // Run the nets
         let scores = run_in_parallel(&mut gene_pool, width, height, max_steps);
         let mean = scores.iter().sum::<f32>() / scores.len() as f32;
@@ -62,10 +62,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let learning_rate = 1.0 / (best_score * decay);
 
-        println!(
-            "Epoch {}/{} ({:.00}%) [Learning rate: {:.04}, All time best: {}]: (Best: {}, Avg: {:.04})",
+        print!(
+            "\rEpoch {}/{} ({:.00}%) [Learning rate: {:.04}, All time best: {}]: (Best: {}, Avg: {:.04})",
             iter, epochs, iter as f32 * 100.0 / epochs as f32, learning_rate, best_score, epoch_best_score, mean
         );
+        use std::io::Write;
+        std::io::stdout().lock().flush()?;
 
         if epoch_best_score > best_score {
             best_score = epoch_best_score;
@@ -87,6 +89,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             gene_pool.push(new_net);
         }
     }
+    println!();
 
     if let Some(net) = best_net {
         println!("Saving model to {}...", save_path);

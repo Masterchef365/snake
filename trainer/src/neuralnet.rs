@@ -37,7 +37,7 @@ pub fn get_direction(neurons: &[f32]) -> Direction {
         .iter()
         .enumerate()
         .max_by(|(_, a), (_, b)| a.partial_cmp(&b).unwrap())
-        .unwrap()
+        .unwrap_or((0, &0.0))
         .0;
     match largest {
         0 => Direction::Up,
@@ -103,12 +103,17 @@ impl Layer {
     }
 
     pub fn infer(&mut self, input: &[f32]) -> &[f32] {
+        if self.out_buf.len() != self.output_size {
+            self.out_buf = vec![0.0; self.output_size].into();
+        }
+
         for ((weight_row, bias_row), out) in self
             .weights
             .chunks_exact(self.input_size)
             .zip(self.biases.chunks_exact(self.input_size))
             .zip(self.out_buf.iter_mut())
         {
+            *out = 0.0;
             for ((weight, bias), input) in weight_row.iter().zip(bias_row.iter()).zip(input.iter())
             {
                 *out += weight * input + bias
