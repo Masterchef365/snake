@@ -1,0 +1,11 @@
+[package]
+name = "snake_evaluator"
+version = "0.1.0"
+authors = ["Masterchef365 <duncan.freeman1@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+iced = { git = "https://github.com/hecrj/iced.git", rev="33448508a524db6447b380cc236be6f0d5ca8a86", features = ["canvas", "tokio"] }
+iced_native = { git = "https://github.com/hecrj/iced.git", rev="33448508a524db6447b380cc236be6f0d5ca8a86" }
+snake_trainer = { path = "../trainer" }
+snake_game = { path = "../game" }

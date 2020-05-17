@@ -1,7 +1,10 @@
-use crate::board::Tile;
-use crate::game::{Direction, Game};
 use rand::distributions::Uniform;
 use rand::{thread_rng, Rng};
+use serde::{Deserialize, Serialize};
+use snake_game::board::Tile;
+use snake_game::game::{Direction, Game};
+use std::fs::File;
+use std::path::Path;
 
 pub fn input_neurons(game: &Game) -> Box<[f32]> {
     let d: [(isize, isize); 8] = [
@@ -62,7 +65,7 @@ fn operate_test() {
     );
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct Layer {
     weights: Box<[f32]>,
     biases: Box<[f32]>,
@@ -74,7 +77,7 @@ impl Layer {
     pub fn new(input_size: usize, output_size: usize) -> Self {
         let size = input_size * output_size;
         let unif = Uniform::new(0.0, 1.0);
-        let mut rng = thread_rng();
+        let rng = thread_rng();
         Self {
             weights: rng.sample_iter(&unif).take(size).collect(),
             biases: rng.sample_iter(&unif).take(size).collect(),
@@ -85,7 +88,7 @@ impl Layer {
 
     pub fn fuzz(&mut self, learning_rate: f32) {
         let unif = Uniform::new(-learning_rate, learning_rate);
-        let mut rng = thread_rng();
+        let rng = thread_rng();
         for (v, d) in self
             .weights
             .iter_mut()
@@ -115,7 +118,7 @@ impl Layer {
 }
 
 // TODO: Store allocations for inference in here in here
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NeuralNet {
     hidden_0: Layer,
     hidden_1: Layer,
@@ -147,5 +150,16 @@ impl NeuralNet {
         let input_layer = input_neurons(&game);
         let output_layer = self.infer(&input_layer);
         operate_game(game, &output_layer);
+    }
+
+    pub fn save(&self, path: impl AsRef<Path>) -> Result<(), Box<dyn std::error::Error>> {
+        let mut file = File::create(path)?;
+        bincode::serialize_into(&mut file, self)?;
+        Ok(())
+    }
+
+    pub fn load(path: impl AsRef<Path>) -> Result<Self, Box<dyn std::error::Error>> {
+        let mut file = File::open(path)?;
+        Ok(bincode::deserialize_from(&mut file)?)
     }
 }

@@ -1,12 +1,6 @@
-mod board;
-mod game;
-mod neuralnet;
-mod snake_widget;
-mod ui;
-use crate::game::{Game, StepResult};
-use crate::neuralnet::*;
+use snake_game::game::{Game, StepResult};
+use snake_trainer::neuralnet::*;
 use rand::Rng;
-use ui::SnakeApp;
 
 fn eval(model: &NeuralNet, width: usize, height: usize, max_steps: usize) -> f32 {
     let mut game = Game::new(width, height);
@@ -34,11 +28,11 @@ pub fn run_in_parallel(
         .collect()
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = std::env::args().skip(1).peekable();
     if args.peek().is_none() {
-        println!("Usage: n_epochs decay_rate units width height max_steps");
-        return;
+        println!("Usage: n_epochs decay_rate units width height max_steps save_path");
+        return Ok(());
     }
 
     let epochs: u32 = args.next().unwrap().parse().unwrap();
@@ -47,6 +41,7 @@ fn main() {
     let width: usize = args.next().unwrap().parse().unwrap();
     let height: usize = args.next().unwrap().parse().unwrap();
     let max_steps: usize = args.next().unwrap().parse().unwrap();
+    let save_path: String = args.next().unwrap();
 
     let mut best_score = 1.0;
     let mut best_net: Option<NeuralNet> = None;
@@ -84,7 +79,7 @@ fn main() {
             .map(|(trainer, _)| trainer.clone())
             .collect();
 
-        gene_pool.clear();
+        gene_pool.clear(); // Genocide
         for _ in 0..units {
             let selection = rng.gen_range(0, best_n.len() - 1);
             let mut new_net = best_n[selection].clone();
@@ -92,9 +87,11 @@ fn main() {
             gene_pool.push(new_net);
         }
     }
-    <SnakeApp as iced::Application>::run(iced::Settings::with_flags((
-        best_net.unwrap(),
-        width,
-        height,
-    )));
+
+    if let Some(net) = best_net {
+        println!("Saving model to {}...", save_path);
+        net.save(save_path)?;
+    }
+
+    Ok(())
 }

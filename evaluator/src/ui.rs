@@ -1,8 +1,8 @@
-use crate::game::*;
+use snake_game::game::*;
 use iced::canvas::*;
 use iced::*;
 use crate::snake_widget::SnakeWidget;
-use crate::neuralnet::NeuralNet;
+use snake_trainer::neuralnet::NeuralNet;
 
 pub struct SnakeApp {
     game: Game,

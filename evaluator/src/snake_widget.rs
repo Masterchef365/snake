@@ -1,4 +1,4 @@
-use crate::board::{Board, Tile};
+use snake_game::board::{Board, Tile};
 use crate::ui::Message;
 use iced::canvas::*;
 use iced::*;

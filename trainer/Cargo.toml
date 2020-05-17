@@ -1,0 +1,12 @@
+[package]
+name = "snake_trainer"
+version = "0.1.0"
+authors = ["Masterchef365 <duncan.freeman1@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+snake_game = { path = "../game" }
+rayon = "1.3"
+rand = "0.7"
+serde = { version = "1", features = ["derive"] }
+bincode = "1.2"
