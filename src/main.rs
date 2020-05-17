@@ -77,7 +77,7 @@ fn main() {
             best_net = Some(epoch_best_net.clone());
         }
 
-        // Pick the 5 best and duplicated them across the training space
+        // Pick the (units/8) best and duplicated them across the training space
         let best_n: Vec<_> = pairs
             .drain(..)
             .take(units / 8)
