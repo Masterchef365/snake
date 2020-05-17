@@ -66,7 +66,6 @@ impl Application for SnakeApp {
             }
             _ => (),
         };
-        dbg!(self.game.look());
         Command::none()
     }
 

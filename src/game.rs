@@ -57,17 +57,54 @@ impl Game {
     }
 
     pub fn look(&self) -> Tile {
-        /*
-        match self.direction {
-            let (hx, hy) = self.head();
-            Direction::Up => {
-                for y in h_y..self.height {
+        let (hx, hy) = self.head();
 
+        match self.direction {
+            Direction::Up => {
+                for y in hy+1..self.height {
+                    match self.get_tile(hx as isize, y as isize) {
+                        None => return Tile::Empty,
+                        Some(Tile::Snake) => return Tile::Snake,
+                        Some(Tile::Food) => return Tile::Food,
+                        Some(Tile::Empty) => (), // Keep moving
+                    }
                 }
-            },
+                Tile::Empty
+            }
+            Direction::Down => {
+                for y in (0..hy).rev() {
+                    match self.get_tile(hx as isize, y as isize) {
+                        None => return Tile::Empty,
+                        Some(Tile::Snake) => return Tile::Snake,
+                        Some(Tile::Food) => return Tile::Food,
+                        Some(Tile::Empty) => (), // Keep moving
+                    }
+                }
+                Tile::Empty
+            }
+            Direction::Right => {
+                for x in hx+1..self.width {
+                    match self.get_tile(x as isize, hy as isize) {
+                        None => return Tile::Empty,
+                        Some(Tile::Snake) => return Tile::Snake,
+                        Some(Tile::Food) => return Tile::Food,
+                        Some(Tile::Empty) => (), // Keep moving
+                    }
+                }
+                Tile::Empty
+            }
+            Direction::Left => {
+                for x in (0..hx).rev() {
+                    match self.get_tile(x as isize, hy as isize) {
+                        None => return Tile::Empty,
+                        Some(Tile::Snake) => return Tile::Snake,
+                        Some(Tile::Food) => return Tile::Food,
+                        Some(Tile::Empty) => (), // Keep moving
+                    }
+                }
+                Tile::Empty
+            }
         }
-        */
-        Tile::Snake
     }
 
     fn get_tile(&self, x: isize, y: isize) -> Option<Tile> {
@@ -92,7 +129,6 @@ impl Game {
 
     pub fn head(&self) -> (usize, usize) {
         *self.snake.back().expect("Snake has no head")
-
     }
 
     pub fn step(&mut self) -> StepResult {
@@ -103,7 +139,9 @@ impl Game {
         match self.get_tile(next_x, next_y) {
             None | Some(Tile::Snake) => return StepResult::Died,
             Some(Tile::Food) => self.food = random_position(self.width, self.width),
-            Some(Tile::Empty) => { self.snake.pop_front(); },
+            Some(Tile::Empty) => {
+                self.snake.pop_front();
+            }
         };
 
         self.snake.push_back((next_x as usize, next_y as usize));
