@@ -46,14 +46,15 @@ impl Application for SnakeApp {
                 if !self.paused {
                     match self.game.step() {
                         StepResult::Alive => self.paused = false,
-                        StepResult::Died => self.paused = true,
+                        StepResult::Died => {
+                            self.paused = true;
+                            println!("Died! Score: {}", self.game.score());
+                        },
                     }
                 }
             }
             Message::Event(iced_native::Event::Keyboard(
-                iced_native::keyboard::Event::KeyPressed {
-                    key_code, ..
-                },
+                iced_native::keyboard::Event::KeyPressed { key_code, .. },
             )) => {
                 use iced_native::keyboard::KeyCode;
                 match key_code {

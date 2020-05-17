@@ -32,7 +32,6 @@ pub struct Game {
     snake: VecDeque<(usize, usize)>,
     food: (usize, usize),
     direction: Direction,
-    score: usize,
 }
 
 fn random_position(width: usize, height: usize) -> (usize, usize) {
@@ -48,7 +47,6 @@ impl Game {
             snake: VecDeque::from(vec![(width / 2, height / 2)]),
             direction: Direction::Right,
             food: random_position(width, height),
-            score: 0,
         }
     }
 
@@ -56,12 +54,16 @@ impl Game {
         self.direction = direction;
     }
 
+    pub fn score(&self) -> usize {
+        self.snake.len()
+    }
+
     pub fn look(&self) -> Tile {
         let (hx, hy) = self.head();
 
         match self.direction {
             Direction::Up => {
-                for y in hy+1..self.height {
+                for y in hy + 1..self.height {
                     match self.get_tile(hx as isize, y as isize) {
                         None => return Tile::Empty,
                         Some(Tile::Snake) => return Tile::Snake,
@@ -83,7 +85,7 @@ impl Game {
                 Tile::Empty
             }
             Direction::Right => {
-                for x in hx+1..self.width {
+                for x in hx + 1..self.width {
                     match self.get_tile(x as isize, hy as isize) {
                         None => return Tile::Empty,
                         Some(Tile::Snake) => return Tile::Snake,
@@ -110,7 +112,7 @@ impl Game {
     fn get_tile(&self, x: isize, y: isize) -> Option<Tile> {
         let (xu, yu) = (x as usize, y as usize);
 
-        if x < 0 || xu > self.width || y < 0 || yu > self.height {
+        if x < 0 || xu >= self.width || y < 0 || yu >= self.height {
             return None;
         }
 
@@ -152,9 +154,9 @@ impl Game {
     pub fn board(&self) -> Board {
         let mut board = Board::fill(Tile::Empty, self.width, self.height);
         for (x, y) in self.snake.iter() {
-            *board.get_mut(*x, *y) = Tile::Snake;
+            *board.get_mut(*x, *y).unwrap() = Tile::Snake;
         }
-        *board.get_mut(self.food.0, self.food.1) = Tile::Food;
+        *board.get_mut(self.food.0, self.food.1).unwrap() = Tile::Food;
         board
     }
 }
