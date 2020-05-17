@@ -19,12 +19,12 @@ pub enum Message {
 impl Application for SnakeApp {
     type Executor = executor::Default;
     type Message = Message;
-    type Flags = NeuralNet;
+    type Flags = (NeuralNet, usize, usize);
 
-    fn new(net: NeuralNet) -> (Self, Command<Self::Message>) {
+    fn new((net, width, height): (NeuralNet, usize, usize)) -> (Self, Command<Self::Message>) {
         (
             Self {
-                game: Game::new(15, 15),
+                game: Game::new(width, height),
                 net,
                 paused: false,
             },
@@ -45,8 +45,9 @@ impl Application for SnakeApp {
                     match self.game.step() {
                         StepResult::Alive => self.paused = false,
                         StepResult::Died => {
-                            self.paused = true;
-                            println!("Died! Score: {}", self.game.score());
+                            self.game = Game::new(self.game.width, self.game.height);
+                            //self.paused = true;
+                            //println!("Died! Score: {}", self.game.score());
                         }
                     }
                 }

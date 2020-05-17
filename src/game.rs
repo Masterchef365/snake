@@ -27,8 +27,8 @@ pub enum StepResult {
 }
 
 pub struct Game {
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     snake: VecDeque<(usize, usize)>,
     food: (usize, usize),
     direction: Direction,
