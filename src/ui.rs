@@ -53,8 +53,8 @@ impl Application for SnakeApp {
                     match self.game.step() {
                         StepResult::Alive => self.paused = false,
                         StepResult::Died => {
-                            self.paused = true;
                             println!("Died! Score: {}", self.game.score());
+                            self.new_game();
                         }
                     }
                 }
@@ -71,7 +71,8 @@ impl Application for SnakeApp {
                     KeyCode::Left => self.game.set_direction(Direction::Left),
                     */
                     KeyCode::R => self.new_game(),
-                    KeyCode::Space => return async { Message::Tick }.into(),
+                    KeyCode::T => return async { Message::Tick }.into(),
+                    KeyCode::Space => self.paused = !self.paused,
                     _ => (),
                 }
             }

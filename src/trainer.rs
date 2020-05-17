@@ -1,14 +1,16 @@
 use crate::game::{Game, StepResult};
 use crate::neuralnet::*;
 
-const MAX_STEPS: usize = 250;
-
 #[derive(Clone)]
 pub struct Trainer {
     pub model: NeuralNet,
     width: usize,
     height: usize,
     max_steps: usize,
+}
+
+fn metascore(gs: usize, steps: usize) -> f32 {
+    gs as f32// + if gs > 1 { steps as f32 / 1000.0 } else { 0.0 }
 }
 
 impl Trainer {
@@ -25,28 +27,28 @@ impl Trainer {
         self.model.fuzz(learning_rate);
     }
 
-    pub fn run(&mut self) -> usize {
+    pub fn run(&mut self) -> f32 {
         let mut game = Game::new(self.width, self.height);
-        for _ in 0..self.max_steps {
+        for step in 0..self.max_steps {
             self.model.play(&mut game);
             match game.step() {
                 StepResult::Alive => (),
-                StepResult::Died => return game.score(),
+                StepResult::Died => return metascore(game.score(), step),
             }
         }
-        game.score()
+        metascore(game.score(), self.max_steps)
     }
 }
 
 pub struct TrainOutput {
-    pub trainers: Vec<(usize, Trainer)>,
+    pub trainers: Vec<(f32, Trainer)>,
 }
 
 impl TrainOutput {
-    pub fn best(&self) -> &(usize, Trainer) {
+    pub fn best(&self) -> &(f32, Trainer) {
         self.trainers
             .iter()
-            .max_by(|(a, _), (b, _)| a.cmp(b))
+            .max_by(|(a, _), (b, _)| a.partial_cmp(b).unwrap())
             .unwrap()
     }
 

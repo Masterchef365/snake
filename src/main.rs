@@ -20,17 +20,19 @@ fn main() {
     let max_steps: usize = args.next().unwrap().parse().unwrap();
 
     let mut evolver = trainer::Evolver::new(units, width, height, max_steps);
-    let mut best_score = 0;
+    let mut best_score = 0.0;
     let mut best_net = None;
+    let mut learning_rate = 1.0;
     for iter in 1..epochs {
-        let learning_rate = 1.0 / (iter as f32).powf(decay);
+        //let learning_rate = 1.0 / (iter as f32).powf(decay);
         let train_out = evolver.train_step(learning_rate);
         let (epoch_best_score, epoch_best_trainer) = train_out.best();
         let avg = train_out.mean();
         println!(
-            "Epoch {} [Learning rate: {:.04}, All time best: {}]: (Best: {}, Avg: {:.04})",
-            iter, learning_rate, best_score, epoch_best_score, avg
+            "Epoch {}/{} ({:.00}%) [Learning rate: {:.04}, All time best: {}]: (Best: {}, Avg: {:.04})",
+            iter, epochs, iter as f32 * 100.0 / epochs as f32, learning_rate, best_score, epoch_best_score, avg
         );
+        learning_rate = 1.0 / (avg * 3.0);
         if *epoch_best_score > best_score {
             best_score = *epoch_best_score;
             best_net = Some(epoch_best_trainer.model.clone());
