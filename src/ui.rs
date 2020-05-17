@@ -16,6 +16,14 @@ pub enum Message {
     Event(iced_native::Event),
 }
 
+impl SnakeApp {
+    fn new_game(&mut self) {
+        self.paused = false;
+        self.game = Game::new(self.game.width, self.game.height);
+        println!("NEW GAME");
+    }
+}
+
 impl Application for SnakeApp {
     type Executor = executor::Default;
     type Message = Message;
@@ -45,9 +53,8 @@ impl Application for SnakeApp {
                     match self.game.step() {
                         StepResult::Alive => self.paused = false,
                         StepResult::Died => {
-                            self.game = Game::new(self.game.width, self.game.height);
-                            //self.paused = true;
-                            //println!("Died! Score: {}", self.game.score());
+                            self.paused = true;
+                            println!("Died! Score: {}", self.game.score());
                         }
                     }
                 }
@@ -57,10 +64,13 @@ impl Application for SnakeApp {
             )) => {
                 use iced_native::keyboard::KeyCode;
                 match key_code {
+                    /*
                     KeyCode::Up => self.game.set_direction(Direction::Up),
                     KeyCode::Down => self.game.set_direction(Direction::Down),
                     KeyCode::Right => self.game.set_direction(Direction::Right),
                     KeyCode::Left => self.game.set_direction(Direction::Left),
+                    */
+                    KeyCode::R => self.new_game(),
                     KeyCode::Space => return async { Message::Tick }.into(),
                     _ => (),
                 }
@@ -71,10 +81,10 @@ impl Application for SnakeApp {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        //Subscription::batch(vec![
-            //iced_native::subscription::events().map(Message::Event)//,
-            time::every(std::time::Duration::from_millis(100)).map(|_| Message::Tick)//,
-        //])
+        Subscription::batch(vec![
+            iced_native::subscription::events().map(Message::Event),
+            time::every(std::time::Duration::from_millis(100)).map(|_| Message::Tick),
+        ])
     }
 
     fn view(&mut self) -> Element<Self::Message> {
