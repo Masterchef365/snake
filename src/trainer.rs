@@ -1,19 +1,23 @@
 use crate::game::{Game, StepResult};
 use crate::neuralnet::*;
 
+const MAX_STEPS: usize = 250;
+
 #[derive(Clone)]
 struct Trainer {
     model: NeuralNet,
     width: usize,
     height: usize,
+    max_steps: usize,
 }
 
 impl Trainer {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(width: usize, height: usize, max_steps: usize) -> Self {
         Self {
             model: NeuralNet::new(),
             width,
             height,
+            max_steps
         }
     }
 
@@ -23,15 +27,14 @@ impl Trainer {
 
     pub fn run(&mut self) -> usize {
         let mut game = Game::new(self.width, self.height);
-        loop {
-            let input_layer = input_neurons(&game);
-            let output_layer = self.model.infer(&input_layer);
-            operate_game(&mut game, &output_layer);
+        for _ in 0..self.max_steps {
+            self.model.play(&mut game);
             match game.step() {
                 StepResult::Alive => (),
                 StepResult::Died => return game.score(),
             }
         }
+        game.score()
     }
 }
 
@@ -40,17 +43,18 @@ pub struct Evolver {
 }
 
 impl Evolver {
-    pub fn new(units: usize, width: usize, height: usize) -> Self {
+    pub fn new(units: usize, width: usize, height: usize, max_steps: usize) -> Self {
         Self {
-            trainers: (0..units).map(|_| Trainer::new(width, height)).collect(),
+            trainers: (0..units).map(|_| Trainer::new(width, height, max_steps)).collect(),
         }
     }
 
-    pub fn train_step(&mut self, learning_rate: f32) -> usize {
+    pub fn train_step(&mut self, learning_rate: f32) -> (NeuralNet, usize) {
+        use rayon::iter::IntoParallelIterator;
+        use rayon::iter::ParallelIterator;
         let n_trainers = self.trainers.len();
-        let (score, best) = self
-            .trainers
-            .drain(..)
+        let (score, best) = std::mem::replace(&mut self.trainers, Default::default())
+            .into_par_iter()
             .map(|mut trainer| (trainer.run(), trainer))
             .max_by(|(a, _), (b, _)| a.cmp(b))
             .unwrap();
@@ -61,6 +65,6 @@ impl Evolver {
                 instance
             })
             .collect();
-        score
+        (best.model, score)
     }
 }

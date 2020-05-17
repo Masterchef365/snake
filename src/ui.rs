@@ -2,10 +2,12 @@ use crate::game::*;
 use iced::canvas::*;
 use iced::*;
 use crate::snake_widget::SnakeWidget;
+use crate::neuralnet::NeuralNet;
 
 pub struct SnakeApp {
     game: Game,
     paused: bool,
+    net: NeuralNet,
 }
 
 #[derive(Debug)]
@@ -17,12 +19,13 @@ pub enum Message {
 impl Application for SnakeApp {
     type Executor = executor::Default;
     type Message = Message;
-    type Flags = ();
+    type Flags = NeuralNet;
 
-    fn new(_flags: ()) -> (Self, Command<Self::Message>) {
+    fn new(net: NeuralNet) -> (Self, Command<Self::Message>) {
         (
             Self {
                 game: Game::new(15, 15),
+                net,
                 paused: false,
             },
             Command::none(),
@@ -38,6 +41,7 @@ impl Application for SnakeApp {
         match message {
             Message::Tick => {
                 if !self.paused {
+                    self.net.play(&mut self.game);
                     match self.game.step() {
                         StepResult::Alive => self.paused = false,
                         StepResult::Died => {
@@ -67,8 +71,8 @@ impl Application for SnakeApp {
 
     fn subscription(&self) -> Subscription<Message> {
         //Subscription::batch(vec![
-            iced_native::subscription::events().map(Message::Event)//,
-            //time::every(std::time::Duration::from_millis(10000)).map(|_| Message::Tick),
+            //iced_native::subscription::events().map(Message::Event)//,
+            time::every(std::time::Duration::from_millis(100)).map(|_| Message::Tick)//,
         //])
     }
 

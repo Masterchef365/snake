@@ -138,4 +138,10 @@ impl NeuralNet {
         self.hidden_0.fuzz(learning_rate);
         self.hidden_1.fuzz(learning_rate);
     }
+
+    pub fn play(&self, game: &mut Game) {
+        let input_layer = input_neurons(&game);
+        let output_layer = self.infer(&input_layer);
+        operate_game(game, &output_layer);
+    }
 }

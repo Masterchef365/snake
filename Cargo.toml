@@ -10,3 +10,4 @@ edition = "2018"
 iced = { git = "https://github.com/hecrj/iced.git", rev="33448508a524db6447b380cc236be6f0d5ca8a86", features = ["canvas", "tokio"] }
 iced_native = { git = "https://github.com/hecrj/iced.git", rev="33448508a524db6447b380cc236be6f0d5ca8a86" }
 rand = "0.7"
+rayon = "1.3"
