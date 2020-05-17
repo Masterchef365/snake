@@ -110,6 +110,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08c48aae112d48ed9f069b33538ea9e3e90aa263cfa3d1c24309612b1f7472de"
 
 [[package]]
+name = "bytes"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "130aac562c0dd69c56b3b1cc8ffd2e17be31d0b6c25b61c96b76231aa23e39e1"
+
+[[package]]
 name = "calloop"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -834,6 +840,7 @@ source = "git+https://github.com/hecrj/iced.git?rev=33448508a524db6447b380cc236b
 dependencies = [
  "futures 0.3.5",
  "log",
+ "tokio",
  "wasm-bindgen-futures 0.4.12",
 ]
 
@@ -1413,6 +1420,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "pin-project-lite"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7505eeebd78492e0f6108f7171c4948dbb120ee8119d9d77d0afa5469bef67f"
+
+[[package]]
 name = "pin-utils"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1731,6 +1744,7 @@ name = "snake"
 version = "0.1.0"
 dependencies = [
  "iced",
+ "rand",
 ]
 
 [[package]]
@@ -1789,6 +1803,19 @@ dependencies = [
  "quote 1.0.5",
  "syn",
  "unicode-xid 0.2.0",
+]
+
+[[package]]
+name = "tokio"
+version = "0.2.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d099fa27b9702bed751524694adbe393e18b36b204da91eb1cbbbbb4a5ee2d58"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "num_cpus",
+ "pin-project-lite",
+ "slab",
 ]
 
 [[package]]
