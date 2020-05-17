@@ -116,7 +116,7 @@ impl Layer {
 
 // TODO: Store allocations for inference in here in here
 #[derive(Debug, Clone)]
-struct NeuralNet {
+pub struct NeuralNet {
     hidden_0: Layer,
     hidden_1: Layer,
 }
