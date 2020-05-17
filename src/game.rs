@@ -56,29 +56,57 @@ impl Game {
         self.direction = direction;
     }
 
-    pub fn step(&mut self) -> StepResult {
-        let (x, y) = self.snake.back().expect("Snake has no head");
-        let (dx, dy) = self.direction.delta();
-        let (next_x, next_y) = (*x as isize + dx, *y as isize + dy);
-        let (nx, ny) = (next_x as usize, next_y as usize);
+    pub fn look(&self) -> Tile {
+        /*
+        match self.direction {
+            let (hx, hy) = self.head();
+            Direction::Up => {
+                for y in h_y..self.height {
 
-        if next_x < 0 || nx > self.width || next_y < 0 || ny > self.height {
-            return StepResult::Died;
+                }
+            },
+        }
+        */
+        Tile::Snake
+    }
+
+    fn get_tile(&self, x: isize, y: isize) -> Option<Tile> {
+        let (xu, yu) = (x as usize, y as usize);
+
+        if x < 0 || xu > self.width || y < 0 || yu > self.height {
+            return None;
         }
 
-        if self.snake.contains(&(nx, ny)) {
-            return StepResult::Died;
+        if self.snake.contains(&(xu, yu)) {
+            return Some(Tile::Snake);
         }
 
         let (food_x, food_y) = self.food;
 
-        if nx == food_x && ny == food_y {
-            self.food = random_position(self.width, self.width);
+        if xu == food_x && yu == food_y {
+            Some(Tile::Food)
         } else {
-            self.snake.pop_front();
+            Some(Tile::Empty)
         }
+    }
 
-        self.snake.push_back((nx, ny));
+    pub fn head(&self) -> (usize, usize) {
+        *self.snake.back().expect("Snake has no head")
+
+    }
+
+    pub fn step(&mut self) -> StepResult {
+        let (hx, hy) = self.head();
+        let (dx, dy) = self.direction.delta();
+        let (next_x, next_y) = (hx as isize + dx, hy as isize + dy);
+
+        match self.get_tile(next_x, next_y) {
+            None | Some(Tile::Snake) => return StepResult::Died,
+            Some(Tile::Food) => self.food = random_position(self.width, self.width),
+            Some(Tile::Empty) => { self.snake.pop_front(); },
+        };
+
+        self.snake.push_back((next_x as usize, next_y as usize));
 
         StepResult::Alive
     }
