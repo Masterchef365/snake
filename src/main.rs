@@ -1,6 +1,7 @@
 mod board;
 mod game;
 mod snake_widget;
+use board::Tile;
 use game::*;
 use iced::canvas::*;
 use iced::*;
@@ -41,6 +42,7 @@ impl Application for SnakeApp {
     }
 
     fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+
         match message {
             Message::Tick => {
                 if !self.paused {
@@ -49,12 +51,36 @@ impl Application for SnakeApp {
                         StepResult::Died => {
                             self.paused = true;
                             println!("Died! Score: {}", self.game.score());
-                        },
+                        }
                     }
+
+                    let d: [(isize, isize); 8] = [
+                        (-1, 1), // Top left
+                        (0, 1),  // Top middle
+                        (1, 1),  // Top right
+                        (-1, 0),  // Middle left
+                        (1, 0),  // Middle right
+                        (-1, -1), // Bottom left
+                        (0, -1), // Bottom middle
+                        (1, -1), // Bottom right
+                    ];
+                    for (dx, dy) in &d {
+                        for tile in &[Some(Tile::Snake), Some(Tile::Food), None] {
+                            println!(
+                                "({},{})->{:?}: {:?}",
+                                dx,
+                                dy,
+                                tile,
+                                self.game.dist(*tile, *dx, *dy)
+                            );
+                        }
+                        println!();
+                    }
+                    println!("-----------------------");
                 }
             }
             Message::Event(iced_native::Event::Keyboard(
-                iced_native::keyboard::Event::KeyPressed { key_code, .. },
+                    iced_native::keyboard::Event::KeyPressed { key_code, .. },
             )) => {
                 use iced_native::keyboard::KeyCode;
                 match key_code {
@@ -62,6 +88,7 @@ impl Application for SnakeApp {
                     KeyCode::Down => self.game.set_direction(Direction::Down),
                     KeyCode::Right => self.game.set_direction(Direction::Right),
                     KeyCode::Left => self.game.set_direction(Direction::Left),
+                    KeyCode::Space => return async { Message::Tick }.into(),
                     _ => (),
                 }
             }
@@ -71,10 +98,10 @@ impl Application for SnakeApp {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        Subscription::batch(vec![
-            iced_native::subscription::events().map(Message::Event),
-            time::every(std::time::Duration::from_millis(300)).map(|_| Message::Tick),
-        ])
+        //Subscription::batch(vec![
+            iced_native::subscription::events().map(Message::Event)//,
+            //time::every(std::time::Duration::from_millis(10000)).map(|_| Message::Tick),
+        //])
     }
 
     fn view(&mut self) -> Element<Self::Message> {

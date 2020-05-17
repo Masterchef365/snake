@@ -58,6 +58,27 @@ impl Game {
         self.snake.len()
     }
 
+    pub fn dist(&self, search: Option<Tile>, dx: isize, dy: isize) -> Option<usize> {
+        let (hx, hy) = self.head();
+        let mut dist = 1;
+        loop {
+            let tile = self.get_tile(dx * dist + hx as isize, dy * dist + hy as isize);
+
+            if tile.is_none() {
+                if search.is_some() {
+                    return None;
+                }
+            }
+
+            if tile == search {
+                return Some(dist as usize);
+            }
+
+            dist += 1;
+        }
+    }
+
+    /*
     pub fn look(&self) -> Tile {
         let (hx, hy) = self.head();
 
@@ -108,6 +129,7 @@ impl Game {
             }
         }
     }
+    */
 
     fn get_tile(&self, x: isize, y: isize) -> Option<Tile> {
         let (xu, yu) = (x as usize, y as usize);
