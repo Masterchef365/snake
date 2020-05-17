@@ -22,10 +22,6 @@ impl SnakeWidget {
             margin,
         }
     }
-
-    pub fn set_board(&mut self, board: Board) {
-        self.board = board;
-    }
 }
 
 impl Program<Message> for SnakeWidget {

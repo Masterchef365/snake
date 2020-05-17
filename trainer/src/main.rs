@@ -1,8 +1,8 @@
+use rand::Rng;
 use snake_game::game::{Game, StepResult};
 use snake_trainer::neuralnet::*;
-use rand::Rng;
 
-fn eval(model: &NeuralNet, width: usize, height: usize, max_steps: usize) -> f32 {
+fn eval(model: &mut NeuralNet, width: usize, height: usize, max_steps: usize) -> f32 {
     let mut game = Game::new(width, height);
     for _ in 0..max_steps {
         model.play(&mut game);
@@ -15,15 +15,15 @@ fn eval(model: &NeuralNet, width: usize, height: usize, max_steps: usize) -> f32
 }
 
 pub fn run_in_parallel(
-    trainers: &[NeuralNet],
+    trainers: &mut [NeuralNet],
     width: usize,
     height: usize,
     max_steps: usize,
 ) -> Vec<f32> {
-    use rayon::iter::IntoParallelIterator;
+    use rayon::iter::IntoParallelRefMutIterator;
     use rayon::iter::ParallelIterator;
     trainers
-        .into_par_iter()
+        .par_iter_mut()
         .map(|net| eval(net, width, height, max_steps))
         .collect()
 }
@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng();
     for iter in 1..epochs {
         // Run the nets
-        let scores = run_in_parallel(&gene_pool, width, height, max_steps);
+        let scores = run_in_parallel(&mut gene_pool, width, height, max_steps);
         let mean = scores.iter().sum::<f32>() / scores.len() as f32;
         let mut pairs: Vec<_> = gene_pool.iter().zip(scores).collect();
         pairs.sort_by(|(_, a), (_, b)| b.partial_cmp(a).unwrap());

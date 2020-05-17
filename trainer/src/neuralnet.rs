@@ -71,6 +71,8 @@ struct Layer {
     biases: Box<[f32]>,
     input_size: usize,
     output_size: usize,
+    #[serde(skip)]
+    out_buf: Box<[f32]>,
 }
 
 impl Layer {
@@ -83,6 +85,7 @@ impl Layer {
             biases: rng.sample_iter(&unif).take(size).collect(),
             input_size,
             output_size,
+            out_buf: vec![0.0; output_size].into(),
         }
     }
 
@@ -99,21 +102,19 @@ impl Layer {
         }
     }
 
-    pub fn infer(&self, input: &[f32]) -> Box<[f32]> {
-        let mut output = Vec::new();
-        for (weight_row, bias_row) in self
+    pub fn infer(&mut self, input: &[f32]) -> &[f32] {
+        for ((weight_row, bias_row), out) in self
             .weights
             .chunks_exact(self.input_size)
             .zip(self.biases.chunks_exact(self.input_size))
+            .zip(self.out_buf.iter_mut())
         {
-            let mut out = 0.0;
             for ((weight, bias), input) in weight_row.iter().zip(bias_row.iter()).zip(input.iter())
             {
-                out += weight * input + bias
+                *out += weight * input + bias
             }
-            output.push(out);
         }
-        output.into()
+        &self.out_buf
     }
 }
 
@@ -134,10 +135,10 @@ impl NeuralNet {
         }
     }
 
-    pub fn infer(&self, input_layer: &[f32]) -> Box<[f32]> {
+    pub fn infer(&mut self, input_layer: &[f32]) -> &[f32] {
         let l0 = self.hidden_0.infer(input_layer);
-        let l1 = self.hidden_1.infer(&l0);
-        self.hidden_2.infer(&l1)
+        let l1 = self.hidden_1.infer(l0);
+        self.hidden_2.infer(l1)
     }
 
     pub fn fuzz(&mut self, learning_rate: f32) {
@@ -146,7 +147,7 @@ impl NeuralNet {
         self.hidden_2.fuzz(learning_rate);
     }
 
-    pub fn play(&self, game: &mut Game) {
+    pub fn play(&mut self, game: &mut Game) {
         let input_layer = input_neurons(&game);
         let output_layer = self.infer(&input_layer);
         operate_game(game, &output_layer);
