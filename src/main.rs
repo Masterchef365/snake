@@ -72,7 +72,7 @@ impl Application for SnakeApp {
     fn subscription(&self) -> Subscription<Message> {
         Subscription::batch(vec![
             iced_native::subscription::events().map(Message::Event),
-            time::every(std::time::Duration::from_millis(500)).map(|_| Message::Tick),
+            time::every(std::time::Duration::from_millis(300)).map(|_| Message::Tick),
         ])
     }
 

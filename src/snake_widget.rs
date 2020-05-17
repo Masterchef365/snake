@@ -3,6 +3,11 @@ use crate::Message;
 use iced::canvas::*;
 use iced::*;
 
+const BG_COLOR: Color = Color::from_rgb(0.1, 0.1, 0.1);
+const EMPTY_COLOR: Color = Color::from_rgb(0.2, 0.2, 0.2);
+const FOOD_COLOR: Color = Color::from_rgb(1.0, 0.0, 0.0);
+const SNAKE_COLOR: Color = Color::WHITE;
+
 pub struct SnakeWidget {
     board: Board,
     tile_size: f32,
@@ -26,23 +31,21 @@ impl SnakeWidget {
 impl Program<Message> for SnakeWidget {
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
-        /*
         frame.fill(
             &Path::rectangle(Point::new(0.0, 0.0), bounds.size()),
-            Fill::Color(Color::BLACK),
+            Fill::Color(BG_COLOR),
         );
-        */
 
-        let total_height = self.board.height() as f32 * (self.tile_size + self.margin);
+        let total_height = (self.board.height() - 1) as f32 * (self.tile_size + self.margin);
 
         let mut y = 0.0;
         for row in self.board.rows() {
             let mut x = 0.0;
             for tile in row {
                 let color = match tile {
-                    Tile::Empty => Color::BLACK,
-                    Tile::Snake => Color::WHITE,
-                    Tile::Food => Color::from_rgb8(0xff, 0x00, 0x00),
+                    Tile::Empty => EMPTY_COLOR,
+                    Tile::Snake => SNAKE_COLOR,
+                    Tile::Food => FOOD_COLOR,
                 };
                 frame.fill(
                     &Path::rectangle(
