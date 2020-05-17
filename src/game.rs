@@ -2,7 +2,7 @@ use crate::board::{Board, Tile};
 use rand::Rng;
 use std::collections::VecDeque;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Direction {
     Up,
     Down,

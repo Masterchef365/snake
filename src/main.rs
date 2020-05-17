@@ -1,7 +1,8 @@
 mod board;
 mod game;
 mod snake_widget;
-use board::Tile;
+mod ai;
+use ai::input_neurons;
 use game::*;
 use iced::canvas::*;
 use iced::*;
@@ -53,30 +54,7 @@ impl Application for SnakeApp {
                             println!("Died! Score: {}", self.game.score());
                         }
                     }
-
-                    let d: [(isize, isize); 8] = [
-                        (-1, 1), // Top left
-                        (0, 1),  // Top middle
-                        (1, 1),  // Top right
-                        (-1, 0),  // Middle left
-                        (1, 0),  // Middle right
-                        (-1, -1), // Bottom left
-                        (0, -1), // Bottom middle
-                        (1, -1), // Bottom right
-                    ];
-                    for (dx, dy) in &d {
-                        for tile in &[Some(Tile::Snake), Some(Tile::Food), None] {
-                            println!(
-                                "({},{})->{:?}: {:?}",
-                                dx,
-                                dy,
-                                tile,
-                                self.game.dist(*tile, *dx, *dy)
-                            );
-                        }
-                        println!();
-                    }
-                    println!("-----------------------");
+                    println!("{:?}", input_neurons(&self.game));
                 }
             }
             Message::Event(iced_native::Event::Keyboard(
