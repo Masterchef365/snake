@@ -1,5 +1,5 @@
 use crate::board::{Board, Tile};
-use crate::Message;
+use crate::ui::Message;
 use iced::canvas::*;
 use iced::*;
 
